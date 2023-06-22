@@ -10,7 +10,7 @@ class EwalletProviders extends ServiceProvider
 {
     public function register()
     {
-        $this->app->singleton('ewallet', function () {
+        $this->app->bind('ewallet', function () {
             return new EwalletController();
         });
 

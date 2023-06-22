@@ -20,7 +20,7 @@ class Ewallet extends Facade
      */
     public static function createPayment($channel, $body)
     {
-        return self::getFacadeRoot()->createPayment();
+        return self::getFacadeRoot()->createPayment($channel, $body);
     }
 
     /**
