@@ -1,0 +1,19 @@
+{
+    "name": "haaruuyaa/xendit-laravel-api",
+    "description": "This is Xendit API made using Laravel framework",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Hafidz Nurul Yaqin",
+            "email": "hafidznurulyaqin@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Haaruuyaa\\XenditLaravelApi\\": "src/"
+        }
+    },
+    "minimum-stability": "dev",
+    "require": {}
+}
