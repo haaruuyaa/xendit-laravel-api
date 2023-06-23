@@ -18,9 +18,9 @@ class Ewallet extends Facade
      * @param $body - Array of data consist of ['reference_id' => 'demo_1231o8u123', 'currency' => 'IDR','amount' => 2000,'checkout_method' => 'ONE_TIME_PAYMENT']
      * @return mixed
      */
-    public static function createPayment($channel, $body)
+    public static function createPayment($channel, $body, $channelProperties=null)
     {
-        return self::getFacadeRoot()->createPayment($channel, $body);
+        return self::getFacadeRoot()->createPayment($channel, $body, $channelProperties);
     }
 
     /**

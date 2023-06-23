@@ -24,10 +24,15 @@ class EwalletController extends Xendit
      * @param $body - Array of data consist of ['reference_id' => 'demo_1231o8u123', 'currency' => 'IDR','amount' => 2000,'checkout_method' => 'ONE_TIME_PAYMENT']
      * @return false|string
      */
-    public function createPayment(string $channel, array $body)
+    public function createPayment(string $channel, array $body, array $channelProperties = null)
     {
         $url = $this->config['url'].$this->endpoint.$this->charge;
-        $arrayBody = $this->createPaymentBody($channel,$body);
+        $arrayBody = $this->createPaymentBody($channel,$body,$channelProperties);
+
+        if(isset($arrayBody['status'])) {
+            return json_encode($arrayBody);
+        }
+
         $jsonBody = json_encode($arrayBody);
         $response = $this->sendRequestApi('post',$url,$jsonBody);
 
@@ -57,27 +62,24 @@ class EwalletController extends Xendit
         return $this->sendRequestApi('get',$url,null);
     }
 
-    private function createPaymentBody($channel, $body)
+    private function createPaymentBody($channel, $body, $channelProperties=null)
     {
         $rule = [
             'reference_id' => 'required|string|max:255',
-            'currency' => [
-                'required',
-                Rule::in(['IDR','PHP']) # currently only accept IDR and PHP
-            ],
+            'currency' => 'required|string',
             'amount' => 'required|integer',
-            'checkout_method' => [
-                'required',
-                Rule::in(['ONE_TIME_PAYMENT'])
-            ]
+            'checkout_method' => 'required|string'
         ];
 
         $validator = Validator::make($body,$rule);
 
         if ($validator->fails()) {
-            $error = $validator->errors();
-            return response()->json($error);
+            $error['message'] = $validator->errors()->getMessages();
+            $error['status'] = 'failed';
+            return $error;
         }
+
+        $cashTag = $channel === 'JENIUSPAY' ? $body['cashtag'] : 'hafidzny';
 
         switch ($channel) {
             case 'OVO' :
@@ -96,7 +98,7 @@ class EwalletController extends Xendit
                 $channelData = $this->astraPayChannel();
                 break;
             case 'JENIUSPAY':
-                $channelData = $this->jeniusPayChannel('hafidzny');
+                $channelData = $this->jeniusPayChannel($cashTag);
                 break;
             case 'SAKUKU':
                 $channelData = $this->sakukuChannel();
@@ -111,8 +113,10 @@ class EwalletController extends Xendit
                 $body['channel_code'] = $channelData['channel_code'];
             }
 
-            if(isset($channelData['channel_properties'])) {
+            if(isset($channelData['channel_properties']) && $channelProperties !== null) {
                 $body['channel_properties'] = $channelData['channel_properties'];
+            } else {
+                $body['channel_properties'] = $channelProperties;
             }
         }
 
@@ -124,7 +128,7 @@ class EwalletController extends Xendit
         return [
             'channel_code' => 'ID_OVO',
             'channel_properties' => [
-                'mobile_number' => '+6281282114064'
+                'mobile_number' => '+628713921231'
             ]
         ];
     }
